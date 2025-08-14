@@ -1,12 +1,20 @@
 class GradientConversation:
-    def __init__(self):
+    def __init__(self, max_history=1000):
         self.messages: list[dict] = []
+        self.max_history = max_history # Keep at most 1000 messages
 
     def add_user_message(self, content: str):
         self.messages.append({"role": "user", "content": content})
+        self._trim_history()
 
     def add_assistant_message(self, content: str, reasoningContent: str = ""):
         self.messages.append({"role": "assistant", "content": content, "reasoningContent": reasoningContent})
+        self._trim_history()
+    
+    def _trim_history(self):
+        if len(self.messages) > self.max_history:
+            # Keep only the last max_history messages
+            self.messages = self.messages[-self.max_history:]
 
     def get_context(self, max_pairs: int = 5):
         """
