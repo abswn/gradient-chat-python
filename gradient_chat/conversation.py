@@ -16,7 +16,7 @@ class GradientConversation:
             # Keep only the last max_history messages
             self.messages = self.messages[-self.max_history:]
 
-    def get_context(self, max_pairs: int = 5):
+    def get_context(self, max_pairs: int):
         """
         Returns the most recent conversation context containing up to `max_pairs` assistant responses 
         and their corresponding user messages, in chronological order.

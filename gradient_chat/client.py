@@ -8,6 +8,8 @@ from .headers import generate_headers
 
 class GradientChatClient:
     BASE_URL = "https://chat.gradient.network/api"
+    DEFAULT_CONTEXT_SIZE = 15  # 15 Q&As = 30 messages
+    MAX_CONTEXT_SIZE = 50      # 25 Q&As = 50 messages (hard cap)
 
     def __init__(self, model="GPT OSS 120B", cluster_mode="nvidia", log_dir="logs"):
         self.model = model
@@ -25,8 +27,11 @@ class GradientChatClient:
         # Internal conversation
         self._internal_conversation = GradientConversation()
 
+        # Headers
+        self.headers = generate_headers()
+
     def get_model_info(self):
-        resp = requests.get(f"{self.BASE_URL}/model_info")
+        resp = requests.get(f"{self.BASE_URL}/model_info", headers=self.headers)
         if resp.status_code == 200:
             data = resp.json().get("data", {})
             return data.get("availableModels", [])
@@ -35,14 +40,16 @@ class GradientChatClient:
     def generate(
         self, 
         user_message: str, 
-        max_context: int = 5, 
+        context_size: int = None, 
         enableThinking: bool = False,
         model: str = None,
         cluster_mode: str = None,
         conversation: GradientConversation = None
     ):
-        # Enforce max context size 20
-        max_context = min(max_context, 20)
+        # Enforce context size
+        if context_size is None or context_size < 0:
+            context_size = self.DEFAULT_CONTEXT_SIZE
+        context_size = min(context_size, self.MAX_CONTEXT_SIZE)
 
         # Use provided model and cluster mode or default to self.model and self.cluster_mode
         req_model = model or self.model
@@ -57,13 +64,11 @@ class GradientChatClient:
         payload = {
             "model": req_model,
             "clusterMode": req_cluster_mode,
-            "messages": conversation.get_context(max_context) or [{"role": "user", "content": user_message}], # if no context, add user message
+            "messages": conversation.get_context(context_size) or [{"role": "user", "content": user_message}], # if no context, add user message
             "enableThinking": enableThinking
         }
 
-        headers = generate_headers()
-
-        resp = requests.post(f"{self.BASE_URL}/generate", headers=headers, data=json.dumps(payload))
+        resp = requests.post(f"{self.BASE_URL}/generate", headers=self.headers, data=json.dumps(payload))
         if resp.status_code != 200:
             raise RuntimeError(f"Request failed: {resp.status_code}")
 
