@@ -1,8 +1,9 @@
 import json
+import requests
 from pathlib import Path
 from datetime import datetime
-import requests
 from .conversation import GradientConversation
+from .headers import generate_headers
 
 
 class GradientChatClient:
@@ -60,11 +61,7 @@ class GradientChatClient:
             "enableThinking": enableThinking
         }
 
-        headers = {
-            "accept": "*/*",
-            "content-type": "application/json",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
-        }
+        headers = generate_headers()
 
         resp = requests.post(f"{self.BASE_URL}/generate", headers=headers, data=json.dumps(payload))
         if resp.status_code != 200:
