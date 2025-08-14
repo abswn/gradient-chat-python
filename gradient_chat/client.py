@@ -113,3 +113,9 @@ class GradientChatClient:
             f.write("\n" + "-"*50 + "\n\n")
 
         return {"reply": reply_text, "reasoning": reasoning_text, "model": model_used}
+
+    def get_conversation(self) -> GradientConversation:
+        """
+        Returns the internal conversation instance used by the client.
+        """
+        return self._internal_conversation
