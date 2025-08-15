@@ -4,14 +4,28 @@ class GradientConversation:
         self.max_history = max_history # Keep at most 1000 messages
 
     def add_user_message(self, content: str):
-        self.messages.append({"role": "user", "content": content})
+        if self.messages and self.messages[-1]["role"] == "user":
+            # Merge with previous user message
+            self.messages[-1]["content"] += "\n" + content
+        else:
+            self.messages.append({"role": "user", "content": content})
         self._trim_history()
 
     def add_assistant_message(self, content: str, reasoningContent: str = None):
-        if reasoningContent:
-            self.messages.append({"role": "assistant", "content": content, "reasoningContent": reasoningContent})
+        if self.messages and self.messages[-1]["role"] == "assistant":
+            self.messages[-1]["content"] += "\n" + content
+            # if current response has reasoning content
+            if reasoningContent:
+                if "reasoningContent" in self.messages[-1]: # merge if previous response had reasoning content
+                    self.messages[-1]["reasoningContent"] += "\n" + reasoningContent
+                else:
+                    self.messages[-1]["reasoningContent"] = reasoningContent # add if previous response didn't have reasoning content
+        # previous message is not an assistant, add normally
         else:
-            self.messages.append({"role": "assistant", "content": content})
+            if reasoningContent:
+                self.messages.append({"role": "assistant", "content": content, "reasoningContent": reasoningContent})
+            else:
+                self.messages.append({"role": "assistant", "content": content})
         self._trim_history()
     
     def _trim_history(self):
@@ -35,17 +49,21 @@ class GradientConversation:
             # Returns:
             # [
             #   {"role": "user", "content": "How are you?"},
-            #   {"role": "assistant", "content": "I'm fine.", "reasoningContent": ""}
+            #   {"role": "assistant", "content": "I'm fine.", "reasoningContent": "..."}
             # ]
         """
         if max_pairs <= 0:
             return []
         msgs = []
         count = 0
-        for msg in reversed(self.messages):
-            msgs.append(msg)
-            if msg["role"] == "assistant":
-                count += 1
+        size = len(self.messages)
+        for i in range(size-1, 0, -2):
+            msgs.append(self.messages[i])
+            msgs.append(self.messages[i-1]) # loop goes till index = 1, but this line gets the 0th index
+            count += 1
             if count >= max_pairs:
                 break
         return list(reversed(msgs))
+
+
+
