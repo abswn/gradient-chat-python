@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # Generate response (enableThinking per request)
     response = gradient_client.generate(
         user_message, 
-        max_context=5, 
+        context_size=5, 
         enableThinking=True
     )
 

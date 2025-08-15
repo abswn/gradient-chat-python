@@ -28,14 +28,14 @@ class GradientChatClient:
         # Text log file for appended conversation
         self.text_log_file = self.run_dir / "conversation_log.txt"
 
+        # Headers for API requests
+        self.headers = generate_headers()
+
         # Load available models
         self.available_models = self.get_model_info()
 
         # Internal conversation
         self._internal_conversation = GradientConversation()
-
-        # Headers for API requests
-        self.headers = generate_headers()
 
     def get_model_info(self):
         """Fetch available models. Returns empty list on failure."""
@@ -78,7 +78,7 @@ class GradientChatClient:
                 - **Timeout** → The request exceeded `timeout` seconds.
                 - **HTTP error** → The server returned a non-2xx status code.
                 - **Network error** → Connection issues, DNS failures, etc.
-                - **Job incomplete** → API responded, but job status never reached "completed".
+                - **Job failed** → API responded, but job status never reached "completed".
             Warning: If writing JSON or text log fails (non-fatal).
         """
         # Enforce context size
@@ -108,7 +108,7 @@ class GradientChatClient:
             resp = requests.post(f"{self.BASE_URL}/generate", headers=self.headers, data=json.dumps(payload), timeout=req_timeout)
             resp.raise_for_status()
         except requests.exceptions.Timeout:
-            raise GradientChatError("Request timed out, please retry")
+            raise GradientChatError("Request timeout, please retry")
         except requests.exceptions.HTTPError as e:
             status = e.response.status_code if e.response else "unknown"
             text = e.response.text if e.response else ""
@@ -139,14 +139,17 @@ class GradientChatClient:
                     reasoning_content.append(d["reasoningContent"])
 
         if not job_completed:
-            raise GradientChatError("Job did not complete successfully")
+            raise GradientChatError("Job failed")
 
         reply_text = "".join(reply_content).strip()
         reasoning_text = "".join(reasoning_content).strip()
 
         # Update conversation with user's message and assitant's reply
         conversation.add_user_message(user_message)
-        conversation.add_assistant_message(reply_text, reasoning_text)
+        if reasoning_text:
+            conversation.add_assistant_message(reply_text, reasoning_text)
+        else:
+            conversation.add_assistant_message(reply_text)
 
         # Save JSON log
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

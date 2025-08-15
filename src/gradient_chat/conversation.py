@@ -7,8 +7,11 @@ class GradientConversation:
         self.messages.append({"role": "user", "content": content})
         self._trim_history()
 
-    def add_assistant_message(self, content: str, reasoningContent: str = ""):
-        self.messages.append({"role": "assistant", "content": content, "reasoningContent": reasoningContent})
+    def add_assistant_message(self, content: str, reasoningContent: str = None):
+        if reasoningContent:
+            self.messages.append({"role": "assistant", "content": content, "reasoningContent": reasoningContent})
+        else:
+            self.messages.append({"role": "assistant", "content": content})
         self._trim_history()
     
     def _trim_history(self):
