@@ -17,7 +17,7 @@ python3 -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 
-pip install gradient-chat
+pip install gradient-chat-client
 ```
 Or if you want to install the latest development version:
 ```bash
