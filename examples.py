@@ -1,5 +1,4 @@
-from gradient_chat.client import GradientChatClient
-from gradient_chat.conversation import GradientConversation
+from gradient_chat import GradientChatClient
 
 if __name__ == "__main__":
     # Create client

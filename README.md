@@ -13,12 +13,20 @@ Unofficial Python client for Gradient Chat which utilizes the decentralized infe
 
 ## Installation
 ```bash
-pip install git+https://github.com/abswn/gradient-chat-python.git@main
+python3 -m venv venv
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate     # Windows
+
+pip install gradient-chat
+```
+Or if you want to install the latest development version:
+```bash
+pip install git+https://github.com/abswn/gradient-chat-python.git
 ```
 
 ## Usage
 ```python
-from gradient_chat.client import GradientChatClient, GradientChatError
+from gradient_chat import GradientChatClient, GradientChatError
 
 # Create client
 client = GradientChatClient()
@@ -76,6 +84,7 @@ response = gradient_client.generate(
 
 All parameters except `user_message` are optional. There is also a parameter called `conversation` of type `GradientConversation` which can be used to send custom conversation history as context.
 ```python
+from gradient_chat import GradientConversation
 custom_convo = GradientConversation(max_history=500)
 custom_convo.add_user_message("Hi")
 custom_convo.add_assistant_message("Hello!") # can also add reasoning text
@@ -115,7 +124,7 @@ client.generate(user_message, custom_convo)
 All fatal errors raise `GradientChatError`.  
 Catch this single exception to handle any request failure.
 ```python
-from gradient_chat.client import GradientChatClient, GradientChatError
+from gradient_chat import GradientChatClient, GradientChatError
 
 client = GradientChatClient()
 
