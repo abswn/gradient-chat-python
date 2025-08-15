@@ -37,7 +37,7 @@ class GradientChatClient:
         # Internal conversation
         self._internal_conversation = GradientConversation()
 
-    def get_model_info(self):
+    def get_model_info(self) -> list[str]:
         """Fetch available models. Returns empty list on failure."""
         try:
             resp = requests.get(f"{self.BASE_URL}/model_info", headers=self.headers, timeout=self.timeout)
@@ -56,7 +56,7 @@ class GradientChatClient:
         cluster_mode: str = None,
         timeout: int = None,
         conversation: GradientConversation = None
-    ):
+    ) -> dict[str, str]:
         """ Sends user message and gets reply and reasoning
 
         Args:
