@@ -85,6 +85,7 @@ response = gradient_client.generate(
 All parameters except `user_message` are optional. There is also a parameter called `conversation` of type `GradientConversation` which can be used to send custom conversation history as context.
 ```python
 from gradient_chat import GradientConversation
+
 custom_convo = GradientConversation(max_history=500)
 custom_convo.add_user_message("Hi")
 custom_convo.add_assistant_message("Hello!") # can also add reasoning text
