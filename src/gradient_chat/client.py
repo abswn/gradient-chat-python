@@ -108,13 +108,13 @@ class GradientChatClient:
             resp = requests.post(f"{self.BASE_URL}/generate", headers=self.headers, data=json.dumps(payload), timeout=req_timeout)
             resp.raise_for_status()
         except requests.exceptions.Timeout:
-            raise GradientChatError("Request timeout, please retry")
+            raise GradientChatError("Request Timeout, please retry")
         except requests.exceptions.HTTPError as e:
             status = e.response.status_code if e.response else "unknown"
             text = e.response.text if e.response else ""
-            raise GradientChatError(f"HTTP error {status}: {text}")
+            raise GradientChatError(f"HTTP Error {status}: {text}")
         except requests.exceptions.RequestException as e:
-            raise GradientChatError(f"Network error: {e}")
+            raise GradientChatError(f"Network Error: {e}")
 
         # Parse response
         raw_lines = resp.text.splitlines()
@@ -139,7 +139,7 @@ class GradientChatClient:
                     reasoning_content.append(d["reasoningContent"])
 
         if not job_completed:
-            raise GradientChatError("Job failed")
+            raise GradientChatError("Job Failed")
 
         reply_text = "".join(reply_content).strip()
         reasoning_text = "".join(reasoning_content).strip()

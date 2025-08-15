@@ -134,10 +134,10 @@ try:
     print(response)
 except GradientChatError as e:
     msg = str(e)
-    if "timeout" in msg:
+    if "Timeout" in msg:
         print("Retrying with a higher timeout...")
         client.generate("Status update?", timeout=120)
-    elif "Job incomplete" in msg:
+    elif "Job Failed" in msg:
         print("Switching to another model...")
         client.generate("Status update?", model="Qwen3 235B")
     else:
@@ -145,10 +145,10 @@ except GradientChatError as e:
 ```
 | Failure Type   | Cause                                               | Suggested Action                               |
 | -------------- | --------------------------------------------------------- | ----------------------------------------------- |
-| Request timeout        | API took longer than timeout seconds.                     | Retry or increase timeout.                      |
+| Request Timeout        | API took longer than timeout seconds.                     | Retry or increase timeout.                      |
 | HTTP Error     | API returned non-2xx status.                               | Retry or investigate payload.                   |
 | Network Error  | Connection issues, DNS failure, SSL errors, etc.          | Check connection / proxy.                       |
-| Job incomplete | API responded but never sent `status == "completed"`.     | Retry or switch to another model/cluster.       |
+| Job Failed | API responded but never sent `status == "completed"`.     | Retry or switch to another model/cluster.       |
 
 Non fatal errors are logged via `warnings.warn()` and do not stop execution.
 
